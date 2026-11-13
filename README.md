@@ -14,6 +14,8 @@ Work in progress. The initial API and development setup are implemented.
 - Automated API test with pytest
 - Dependency management with uv and a committed lockfile
 - UTF-8 text extraction with validation for blank and invalid content
+- TXT upload endpoint with typed responses and input validation
+- Code quality checks with Ruff and continuous integration with GitHub Actions
 
 ### Planned
 
@@ -52,6 +54,36 @@ Stop the development server with Ctrl+C.
 ```powershell
 py -3.13 -m uv run --locked pytest -v
 ```
+
+## Document extraction
+
+Upload a UTF-8 `.txt` file using `POST /documents/extract`.
+The multipart form field is named `file`.
+
+You can try the endpoint through the interactive documentation at
+http://127.0.0.1:8000/docs.
+
+The maximum accepted file content size is 10 MiB.
+
+Example response:
+
+```json
+{
+  "filename": "test.txt",
+  "text": "Hallo, das ist ein Test!",
+  "character_count": 24
+}
+```
+
+| Status | Meaning |
+|---|---|
+| 200 | Text extracted successfully |
+| 413 | File exceeds the configured size limit |
+| 415 | Unsupported file extension |
+| 422 | Missing file, blank content or invalid UTF-8 |
+
+Files are currently processed for extraction only.
+Persistent document storage and indexing are planned.
 
 ## Project structure
 
