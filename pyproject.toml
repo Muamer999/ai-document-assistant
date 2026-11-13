@@ -12,6 +12,7 @@ dependencies = [
 dev = [
     "httpx",
     "pytest",
+    "ruff>=0.17.5",
 ]
 
 [build-system]
@@ -23,3 +24,10 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
