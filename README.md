@@ -13,6 +13,7 @@ Work in progress. The initial API and development setup are implemented.
 - Interactive API documentation
 - Automated API test with pytest
 - Dependency management with uv and a committed lockfile
+- UTF-8 text extraction with validation for blank and invalid content
 
 ### Planned
 
