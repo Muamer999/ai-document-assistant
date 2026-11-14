@@ -23,6 +23,7 @@ def test_extract_document_returns_text() -> None:
         "filename": "test.txt",
         "text": "Hallo, das ist ein Test!",
         "character_count": 24,
+        "pages": [],
     }
 
 
@@ -30,11 +31,11 @@ def test_extract_document_rejects_unsupported_file_type() -> None:
     with TestClient(app) as client:
         response = client.post(
             "/documents/extract",
-            files={"file": ("test.pdf", b"Hello", "application/pdf")},
+            files={"file": ("test.docx", b"Hello", "application/octet-stream")},
         )
 
     assert response.status_code == 415
-    assert response.json()["detail"] == "Only .txt files are supported."
+    assert response.json()["detail"] == "Only .txt and .pdf files are supported."
 
 
 @pytest.mark.parametrize(

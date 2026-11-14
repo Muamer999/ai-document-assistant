@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, UploadFile
 
-from document_assistant.api.schemas import ExtractionResponse
+from document_assistant.api.schemas import ExtractionResponse, PageResponse
 from document_assistant.config import MAX_UPLOAD_BYTES
-from document_assistant.ingestion.extractors import extract_txt
+from document_assistant.ingestion.extractors import extract_pdf, extract_txt
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -10,11 +10,12 @@ router = APIRouter(prefix="/documents", tags=["documents"])
 @router.post("/extract", response_model=ExtractionResponse)
 def extract_document(file: UploadFile) -> ExtractionResponse:
     filename = file.filename or ""
+    normalized_name = filename.lower()
 
-    if not filename.lower().endswith(".txt"):
+    if not normalized_name.endswith((".txt", ".pdf")):
         raise HTTPException(
             status_code=415,
-            detail="Only .txt files are supported.",
+            detail="Only .txt and .pdf files are supported.",
         )
 
     content = file.file.read(MAX_UPLOAD_BYTES + 1)
@@ -25,8 +26,22 @@ def extract_document(file: UploadFile) -> ExtractionResponse:
             detail="File exceeds the configured size limit.",
         )
 
+    pages: list[PageResponse] = []
+
     try:
-        text = extract_txt(content)
+        if normalized_name.endswith(".pdf"):
+            extracted_pages = extract_pdf(content)
+            text = "\n\n".join(page.text for page in extracted_pages)
+            pages = [
+                PageResponse(
+                    page_number=page.page_number,
+                    text=page.text,
+                )
+                for page in extracted_pages
+            ]
+        else:
+            text = extract_txt(content)
+
     except UnicodeDecodeError as exc:
         raise HTTPException(
             status_code=422,
@@ -42,4 +57,5 @@ def extract_document(file: UploadFile) -> ExtractionResponse:
         filename=filename,
         text=text,
         character_count=len(text),
+        pages=pages,
     )

@@ -5,7 +5,8 @@ retrieval-augmented generation (RAG).
 
 ## Project status
 
-Work in progress. The initial API and development setup are implemented.
+Work in progress. TXT and PDF extraction, automated tests and CI are
+implemented. Retrieval and answer generation are planned.
 
 ### Implemented
 
@@ -14,7 +15,7 @@ Work in progress. The initial API and development setup are implemented.
 - Automated API test with pytest
 - Dependency management with uv and a committed lockfile
 - UTF-8 text extraction with validation for blank and invalid content
-- TXT upload endpoint with typed responses and input validation
+- TXT and PDF uploads with typed responses and input validation
 - Code quality checks with Ruff and continuous integration with GitHub Actions
 - PDF text extraction with preserved page numbers
 - Validation for unreadable, encrypted and textless PDFs
