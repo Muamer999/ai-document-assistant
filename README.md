@@ -16,10 +16,13 @@ Work in progress. The initial API and development setup are implemented.
 - UTF-8 text extraction with validation for blank and invalid content
 - TXT upload endpoint with typed responses and input validation
 - Code quality checks with Ruff and continuous integration with GitHub Actions
+- PDF text extraction with preserved page numbers
+- Validation for unreadable, encrypted and textless PDFs
+- Configurable PDF page limit
 
 ### Planned
 
-- PDF and text document ingestion
+- PDF upload support
 - Text chunking and local embeddings
 - Semantic retrieval with ChromaDB
 - LLM-generated answers with source references
@@ -84,6 +87,27 @@ Example response:
 
 Files are currently processed for extraction only.
 Persistent document storage and indexing are planned.
+
+## PDF extraction
+
+PDF processing is available through the internal Python function
+`extract_pdf(content: bytes)`.
+
+It returns a list of `ExtractedPage` objects containing:
+
+- `page_number`: the original page position, starting at 1
+- `text`: the extracted text of that page
+
+Individual blank pages are preserved. Documents without extractable
+text, encrypted PDFs and documents exceeding the page limit are rejected.
+
+The page limit is defined by `MAX_PDF_PAGES`, currently set to 50.
+
+The HTTP upload endpoint currently accepts TXT files.
+PDF upload integration is the next development step.
+
+A synthetic three-page PDF in `tests/fixtures/sample_document.pdf`
+provides known text on pages 1 and 3, with a blank page in between.
 
 ## Project structure
 
