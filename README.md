@@ -61,33 +61,55 @@ py -3.13 -m uv run --locked pytest -v
 
 ## Document extraction
 
-Upload a UTF-8 `.txt` file using `POST /documents/extract`.
+Upload a `.txt` or `.pdf` file using `POST /documents/extract`.
 The multipart form field is named `file`.
 
-You can try the endpoint through the interactive documentation at
-http://127.0.0.1:8000/docs.
+Try the endpoint at http://127.0.0.1:8000/docs.
 
-The maximum accepted file content size is 10 MiB.
+### Supported files and limits
 
-Example response:
+- TXT files must contain non-blank UTF-8 text.
+- PDFs must contain extractable text and may have up to 50 pages.
+- Individual blank PDF pages are preserved.
+- Encrypted PDFs are currently rejected.
+- Both formats have a maximum accepted file content size of 10 MiB.
+
+### Response
+
+The response contains the filename, extracted text, character count
+and a list of PDF pages. For TXT files, `pages` is an empty list.
+
+Example PDF response:
 
 ```json
 {
-  "filename": "test.txt",
-  "text": "Hallo, das ist ein Test!",
-  "character_count": 24
+  "filename": "sample_document.pdf",
+  "text": "First page content.\n\n\n\n\nThird page content.\n",
+  "character_count": 44,
+  "pages": [
+    {"page_number": 1, "text": "First page content.\n"},
+    {"page_number": 2, "text": ""},
+    {"page_number": 3, "text": "Third page content.\n"}
+  ]
 }
 ```
+
+PDF page numbers represent the original file positions, starting at 1.
+The combined text joins page texts with two newline characters.
+Its character count includes those separators.
 
 | Status | Meaning |
 |---|---|
 | 200 | Text extracted successfully |
 | 413 | File exceeds the configured size limit |
 | 415 | Unsupported file extension |
-| 422 | Missing file, blank content or invalid UTF-8 |
+| 422 | Missing file, invalid content or PDF page limit exceeded |
 
 Files are currently processed for extraction only.
 Persistent document storage and indexing are planned.
+
+A synthetic test PDF is included at
+`tests/fixtures/sample_document.pdf`.
 
 ## PDF extraction
 
